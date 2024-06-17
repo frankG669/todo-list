@@ -6,12 +6,23 @@ const addTask = () => {
     const listTask = document.getElementById('list');
     const registeredTask = document.getElementById('registered-tasks');
 
+
+    event.preventDefault();
+
     if(taskValue){
 
         const newTask = document.createElement('div');
         newTask.className = 'newTask';
         newTask.id = 'taskValid';
         registeredTask.appendChild(newTask);
+
+        Swal.fire({
+            icon: "success",
+            title: "Tu tarea ha sido registrada",
+            showConfirmButton: false,
+            timer: 1500
+          });
+
 
         //Agregamos un parrafo con el valor del imput
         const createTextTask = document.createElement('p');
@@ -31,6 +42,7 @@ const addTask = () => {
         btnsDiv.appendChild(btnDelete);
 
 
+
         //Crear boton de para actualizar
         const btnUpdate = document.createElement('button');
         btnUpdate.id = 'btnUpdate';
@@ -40,32 +52,66 @@ const addTask = () => {
 
         // Añadir event listener para el botón de borrar
         btnDelete.addEventListener('click', function() {
-            // Eliminar el elemento padre del botón de borrar (que es newTask)
-            const confirmDelete = confirm('¿Desea borrar esta tarea?');
-            if(confirmDelete){
-                newTask.remove();
-            }
+
+            Swal.fire({
+                title: "¿Deseas eliminar esta tarea?",
+                text: "No podrás revertir estos cambios",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                cancelButtonText: "Cancelar",
+                confirmButtonText: "Si, borrar!"
+              }).then((result) => {
+                if (result.isConfirmed) {
+
+                    newTask.remove();
+
+                  Swal.fire({
+                    title: "Tarea eliminada",
+                    text: "Tu tarea se ha eliminado con exito! :)",
+                    icon: "success"
+                  });
+                }
+              });
+
         });
 
 
         //Actulizar Tareas
-        btnUpdate.addEventListener('click', function() {
-            // Obtener el elemento párrafo dentro de newTask para actualizar su contenido
-            const paragraph = newTask.querySelector('p');
-            const taskUpdate = prompt('Ingresa la nueva tarea', paragraph.textContent);
+        btnUpdate.addEventListener('click', async function() {
 
-            // Verificar si el usuario ingresó un nuevo contenido
-            if (taskUpdate !== null && taskUpdate !== '') {
-                // Actualizar el contenido del párrafo
-                paragraph.textContent = taskUpdate;
+            const paragraph = newTask.querySelector('p');
+            const paragraphText = paragraph.textContent;
+        
+            const { value: text } = await Swal.fire({
+                input: "textarea",
+                inputLabel: "Actuliza tu tarea",
+                inputPlaceholder: paragraphText,
+                inputAttributes: {
+                    "aria-label": "Actuliza tu tarea"
+                },
+                showCancelButton: true
+            });
+        
+            if (text) {
+                paragraph.textContent = text;
+                Swal.fire({
+                    icon: "success",
+                    title: "Tarea actualizada",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             }
+
         });
 
         // Limpia el valor del input
         taskInput.value = '';
     }
     else{
-        alert('Ups, ingresa algo en el input');
+        // alert('Ups, ingresa algo en el input');
+        Swal.fire("Ups, ingresa una tarea en el input");
     }
 
 
